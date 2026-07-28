@@ -4,6 +4,12 @@
 
 int main(void)
 {
+    // ---- Motor setup ----
+    // K = 10.0 (velocity per volt), tau = 0.5s (moderately sluggish motor)
+    // With output clamped to +-12V below, max reachable steady-state velocity
+    // is K*12 = 120, so our setpoint of 100 is comfortably achievable.
+    Motor motor = motor_init(10.0, 0.5);
+    
     // ---- PID setup ----
     // Starting gains - feel free to tune these and re-run
     PIDController pid = pid_init(2.0, 0.5, 0.1);
