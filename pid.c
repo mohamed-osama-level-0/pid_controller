@@ -1,5 +1,6 @@
 #include "pid.h"
-#include "types.h"
+
+bool inAuto = false;
 
 PIDController pid_init(real_n Kp, real_n Ki, real_n Kd) {
     PIDController pid;
@@ -28,6 +29,9 @@ void pid_set_limits(PIDController *pid,
 }
 
 real_n pid_compute(PIDController *pid, real_n setpoint, real_n input, real_n dt) {
+
+    if(!inAuto) return;
+
     //compute the current error
     real_n error = setpoint - input;
 
@@ -71,4 +75,22 @@ static real_n SetMax_MinLimits(real_n value, real_n min, real_n max) {
         return max;
     }
     return value;
+}
+
+void SetMode(int Mode)
+{
+    bool newAuto = (Mode == AUTOMATIC);
+    if(newAuto && !inAuto)
+    {  /*we just went from manual to auto*/
+        Initialize();
+    }
+    inAuto = newAuto;
+}
+ 
+void Initialize(PIDController *pid, real_n input)
+{
+   pid->prev_input = input;
+   i_term = output;
+   if(i_term > pid->output_max) i_term = pid->output_max;
+   else if(i_term < pid->output_min) i_term= pid->output_min;
 }

@@ -1,6 +1,10 @@
 #ifndef PID_H
 #define PID_H
 
+#define MANUAL 0
+#define AUTOMATIC 1
+
+#include <stdbool.h>
 #include "types.h"
 
 typedef struct {
@@ -32,5 +36,9 @@ real_n pid_compute(PIDController *pid, real_n setpoint, real_n input, real_n dt)
 
 // small helper to keep a value within [max, min]
 static real_n SetMax_MinLimits(real_n value, real_n min, real_n max);
+
+void SetMode(int Mode);
+
+void Initialize();
 
 #endif
