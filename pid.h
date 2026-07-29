@@ -25,9 +25,8 @@ typedef struct {
     real_n output_min;    // clamp on the final control output (actuator limits)
     real_n output_max;
     
-    // الإضافات الجديدة
-    bool inAuto;          // حالة المتحكم (يدوي أم آلي)
-    int direction;        // اتجاه المتحكم (مباشر أم عكسي)
+    bool inAuto;          //control method(auto/manual)
+    int direction;        //direction(direct or reversed) based on the system
 } PIDController;
 
 // Create a PID controller with given gains.
@@ -41,10 +40,10 @@ void pid_set_limits(PIDController *pid,
 // Compute the control output for a given error and time step
 real_n pid_compute(PIDController *pid, real_n setpoint, real_n input, real_n dt);
 
-// تحديد اتجاه التحكم
+// determain control direction
 void pid_set_direction(PIDController *pid, int direction);
 
-// تغيير الوضع بين يدوي وآلي مع الانتقال السلس
+// changing control mode
 void pid_set_mode(PIDController *pid, int mode, real_n current_input, real_n current_output);
 
 #endif
