@@ -22,9 +22,9 @@ PIDController pid_init(real_n Kp, real_n Ki, real_n Kd) {
     pid.output_min = -1e6;
     pid.output_max = 1e6;
 
-    // الإعدادات الافتراضية
-    pid.inAuto = true;       // افتراضياً يعمل بشكل آلي
-    pid.direction = DIRECT;  // افتراضياً الاتجاه مباشر
+    // defulte
+    pid.inAuto = true;       // auto
+    pid.direction = DIRECT;  // direct
 
     return pid;
 }
@@ -38,9 +38,9 @@ void pid_set_limits(PIDController *pid,
     pid->output_max = output_max;
 }
 
-// دالة تغيير الاتجاه (Direction)
+//Direction changing function
 void pid_set_direction(PIDController *pid, int direction) {
-    // إذا تغير الاتجاه عن الحالي، نقوم بقلب إشارة المعاملات
+    // if direction changed, change the sing of the gains
     if (pid->direction != direction) {
         pid->Kp = -(pid->Kp);
         pid->Ki = -(pid->Ki);
@@ -49,16 +49,16 @@ void pid_set_direction(PIDController *pid, int direction) {
     }
 }
 
-// دالة تغيير الوضع (Manual/Auto) مع الانتقال السلس
+// smooth tarnstion between auto/manual
 void pid_set_mode(PIDController *pid, int mode, real_n current_input, real_n current_output) {
     bool newAuto = (mode == AUTOMATIC);
     
-    // إذا تحولنا من اليدوي إلى الآلي للتو (Bumpless Transfer)
+    // when switch from manual to auto (Bumpless Transfer)
     if (newAuto && !pid->inAuto) {
         pid->prev_input = current_input;
         pid->integral = current_output; // ITerm = Output
         
-        // التأكد أن الـ integral لا يتجاوز الحدود
+        // to prevent wind-up problem
         pid->integral = SetMax_MinLimits(pid->integral, pid->integral_min, pid->integral_max);
     }
     pid->inAuto = newAuto;
@@ -66,7 +66,7 @@ void pid_set_mode(PIDController *pid, int mode, real_n current_input, real_n cur
 
 real_n pid_compute(PIDController *pid, real_n setpoint, real_n input, real_n dt) {
     
-    // إذا كان الوضع يدوياً، لن يحسب المتحكم شيئاً
+    // if the program in manual mode, then pid will not be calculated
     if (!pid->inAuto) {
         return 0.0; 
     }
@@ -76,10 +76,10 @@ real_n pid_compute(PIDController *pid, real_n setpoint, real_n input, real_n dt)
     // Proportional term
     real_n p_term = pid->Kp * error;
 
-    // Integral term (تم إصلاح الخطأ هنا!)
+    // Integral term 
     pid->integral += (pid->Ki * error * dt);
     pid->integral = SetMax_MinLimits(pid->integral, pid->integral_min, pid->integral_max);
-    real_n i_term = pid->integral; // ITerm أصبحت قيمته جاهزة
+    real_n i_term = pid->integral;
 
     // Derivative term 
     real_n d_term = 0.0;
@@ -87,7 +87,7 @@ real_n pid_compute(PIDController *pid, real_n setpoint, real_n input, real_n dt)
         pid->initialized = 1;
     } else {
         real_n dInput = input - pid->prev_input;
-        // يتم استخدام dInput للحد من الـ Setpoint Kick
+        // dinput to limit the derivative kick
         d_term = -pid->Kd * (dInput / dt); 
     }
     pid->prev_input = input;
