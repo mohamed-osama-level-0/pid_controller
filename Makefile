@@ -1,26 +1,27 @@
+# تحديد المترجم وإعدادات التجميع
 CC = gcc
-CFLAGS = -Wall -std=c11
+CFLAGS = -Wall -Wextra -std=c11
 
-TARGET = pid_sim
+# اسم الملف التنفيذي النهائي
+TARGET = simulate
 
+# الهدف الافتراضي عند كتابة make فقط
 all: $(TARGET)
 
-$(TARGET): simulate.o motor.o pid.o
-	$(CC) $(CFLAGS) -o $(TARGET) simulate.o motor.o pid.o
+# قاعدة ربط الملفات الكائنية لإنشاء البرنامج النهائي
+$(TARGET): simulate.o pid.o motor.o
+	$(CC) $(CFLAGS) -o $(TARGET) simulate.o pid.o motor.o
 
-simulate.o: simulate.c motor.h pid.h
+# قواعد تجميع كل ملف .c إلى ملف .o (Object File)
+simulate.o: simulate.c pid.h motor.h types.h
 	$(CC) $(CFLAGS) -c simulate.c
 
-motor.o: motor.c motor.h
-	$(CC) $(CFLAGS) -c motor.c
-
-pid.o: pid.c pid.h
+pid.o: pid.c pid.h types.h
 	$(CC) $(CFLAGS) -c pid.c
 
-run: $(TARGET)
-	./$(TARGET)
+motor.o: motor.c motor.h types.h
+	$(CC) $(CFLAGS) -c motor.c
 
+# أمر لتنظيف بيئة العمل
 clean:
 	rm -f *.o $(TARGET) output.csv
-
-.PHONY: all run clean
