@@ -1,16 +1,20 @@
 #ifndef PID_H
 #define PID_H
 
+#include <stdbool.h>
+#include "types.h"
+
+// تعريفات الوضع والاتجاه
 #define MANUAL 0
 #define AUTOMATIC 1
 
-#include <stdbool.h>
-#include "types.h"
+#define DIRECT 0
+#define REVERSE 1
 
 typedef struct {
     real_n Kp, Ki, Kd;
 
-    real_n integral;      // accumulated error over time
+    real_n integral;      // ITerm: accumulated error over time
     real_n prev_input;    // error from the previous step (for derivative term)
 
     int initialized;
@@ -20,10 +24,13 @@ typedef struct {
 
     real_n output_min;    // clamp on the final control output (actuator limits)
     real_n output_max;
+    
+    // الإضافات الجديدة
+    bool inAuto;          // حالة المتحكم (يدوي أم آلي)
+    int direction;        // اتجاه المتحكم (مباشر أم عكسي)
 } PIDController;
 
 // Create a PID controller with given gains.
-// integral/output clamps default to a wide range; override with pid_set_limits().
 PIDController pid_init(real_n Kp, real_n Ki, real_n Kd);
 
 // Optionally set anti-windup and output saturation limits
@@ -34,11 +41,10 @@ void pid_set_limits(PIDController *pid,
 // Compute the control output for a given error and time step
 real_n pid_compute(PIDController *pid, real_n setpoint, real_n input, real_n dt);
 
-// small helper to keep a value within [max, min]
-static real_n SetMax_MinLimits(real_n value, real_n min, real_n max);
+// تحديد اتجاه التحكم
+void pid_set_direction(PIDController *pid, int direction);
 
-void SetMode(int Mode);
-
-void Initialize();
+// تغيير الوضع بين يدوي وآلي مع الانتقال السلس
+void pid_set_mode(PIDController *pid, int mode, real_n current_input, real_n current_output);
 
 #endif
