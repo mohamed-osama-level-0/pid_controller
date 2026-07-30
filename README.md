@@ -23,7 +23,7 @@ This project is a C-based simulation of a Proportional-Integral-Derivative (PID)
 1. **Build the Project:**
    Ensure you have a GCC compiler installed, open your terminal, and run:
    ```bash
-   make
+   gcc simulate.c pid.c motor.c -o simulate
 2. **Visualize the Results:**
    python3 plot.py
 
