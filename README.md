@@ -24,7 +24,6 @@ The motor itself is modeled as a simple first-order linear system, `dv/dt = (K*u
 
 `plot.py` is an optional Python script using matplotlib that reads `output.csv` and produces a graph of velocity versus setpoint over time, alongside the control signal, making the step response and disturbance recovery easy to see visually rather than reading raw numbers.
 
-The `Makefile` automates building all three C files into the final executable using `gcc`.
 
 **Key design decisions:** every module was deliberately kept ignorant of the others' internals — the motor knows nothing about control theory, and the controller knows nothing about motors — communicating only through plain numeric values (error in, control signal out). This separation, along with the bug-fixes and safety features described above (anti-windup, derivative-on-measurement, bumpless transfer), was chosen specifically because these are the same real-world problems and patterns encountered when implementing PID control on actual embedded systems, which is directly relevant to my mechatronics engineering studies.
 
